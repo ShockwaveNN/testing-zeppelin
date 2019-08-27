@@ -2,10 +2,12 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from faker import Faker
 import time
 import tempfile
 import json
 import codecs
+
 
 
 class Browser:
@@ -70,12 +72,14 @@ class Notebook:
 
 
 def test_export():
+    note_name = Faker().job()
+    note_content = Faker().text(50)
     driver = Browser()
     driver.open('http://localhost:8080')
     main_page = MainPage(driver)
-    note_page = main_page.create_new_note('note_name')
-    note_page.type_note('note_content')
+    note_page = main_page.create_new_note(note_name)
+    note_page.type_note(note_content)
     note_data = note_page.export_note()
-    assert note_data['name'] == 'note_name'
-    assert note_data['paragraphs'][0]['text'] == 'note_content'
+    assert note_data['name'] == note_name
+    assert note_data['paragraphs'][0]['text'] == note_content
     driver.quit()
