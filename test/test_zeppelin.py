@@ -36,12 +36,13 @@ class MainPage:
     def wait_to_load(self):
         WebDriverWait(self.driver.browser, 3).until(
             EC.presence_of_element_located((By.XPATH, '//div[@id="main"]//a[@data-target="#noteCreateModal"]')))
+        time.sleep(1)  # TODO: Remove timeout
 
     def open_new_note_window(self):
         self.driver.browser.find_element_by_xpath('//div[@id="main"]//a[@data-target="#noteCreateModal"]').click()
         WebDriverWait(self.driver.browser, 3).until(
             EC.presence_of_element_located((By.XPATH, '//div[@id="noteCreateModal"]//input[@id="noteName"]')))
-        time.sleep(1)  # Remove timeout
+        time.sleep(1)  # TODO: Remove timeout
 
     def create_new_note(self, name, interpreter='spark'):
         self.open_new_note_window()
@@ -50,6 +51,31 @@ class MainPage:
         self.driver.browser.find_element_by_xpath('//*[@id="createNoteButton"]').click()
         return Notebook(self.driver)
 
+    def import_note(self):
+        self.driver.browser.find_element_by_xpath('//div[@id="main"]//a[@data-target="#noteImportModal"]').click()
+        return ImportNoteWindow(self.driver)
+
+    def open_note_by_name(self, name):
+
+        return Notebook(self.driver)
+
+
+class ImportNoteWindow:
+    def __init__(self, driver):
+        self.driver = driver
+        self.wait_to_load()
+
+    def wait_to_load(self):
+        WebDriverWait(self.driver.browser, 3).until(
+            EC.presence_of_element_located((By.XPATH, '//input[@id="noteImportName"]')))
+        time.sleep(1)  # TODO: Remove timeout
+
+    def set_name(self, name):
+        self.driver.browser.find_element_by_xpath('//input[@id="noteImportName"]').send_keys(name)
+
+    def set_file(self, file):
+        self.driver.browser.find_element_by_xpath('//*[@id="noteImportFile"]').send_keys(file)
+        return MainPage(self.driver)
 
 class Notebook:
     def __init__(self, driver):
@@ -71,10 +97,10 @@ class Notebook:
         file_path = self.driver.download_dir + "/" + self.name() + ".json"
         return json.load(codecs.open(file_path, 'r', 'utf-8-sig'))
 
+
 class ZeppelinApi:
     def __init__(self, url):
         self.url = url
-
 
     def notes(self):
         import urllib.request
@@ -89,13 +115,19 @@ class ZeppelinApi:
         note = next(item for item in notes if item["name"] == name)
         self.delete_note_by_id(note['id'])
 
+
 @pytest.fixture(autouse=True)
 def note_name():
     yield Faker().job()
 
+
 @pytest.fixture(autouse=True)
 def note_content():
     yield Faker().text(50)
+
+@pytest.fixture(autouse=True)
+def note_file():
+    yield '/home/lobashov/sources/testing-zeppelin/zeppelin/PermanentTestNote.json' # TODO relative path
 
 @pytest.fixture(autouse=True)
 def open_zeppelin(note_name):
@@ -114,3 +146,12 @@ def test_export(open_zeppelin, note_name, note_content):
     note_data = note_page.export_note()
     assert note_data['name'] == note_name
     assert note_data['paragraphs'][0]['text'] == note_content
+
+
+def test_import(open_zeppelin, note_name, note_file):
+    main_page = MainPage(open_zeppelin)
+    import_note_window = main_page.import_note()
+    import_note_window.set_name(note_name)
+    main_page = import_note_window.set_file(note_file)
+    note_page = main_page.open_note_by_name(note_name)
+    assert note_page.name == note_name
