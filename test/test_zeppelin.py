@@ -8,6 +8,7 @@ import time
 import tempfile
 import json
 import codecs
+import requests
 
 
 class Browser:
@@ -70,18 +71,43 @@ class Notebook:
         file_path = self.driver.download_dir + "/" + self.name() + ".json"
         return json.load(codecs.open(file_path, 'r', 'utf-8-sig'))
 
+class ZeppelinApi:
+    def __init__(self, url):
+        self.url = url
+
+
+    def notes(self):
+        import urllib.request
+        data = urllib.request.urlopen(self.url + "/api/notebook").read()
+        return json.loads(data)['body']
+
+    def delete_note_by_id(self, note_id):
+        requests.delete(self.url + "/api/notebook/" + note_id)
+
+    def delete_note_by_name(self, name):
+        notes = self.notes()
+        note = next(item for item in notes if item["name"] == name)
+        self.delete_note_by_id(note['id'])
 
 @pytest.fixture(autouse=True)
-def open_zeppelin():
+def note_name():
+    yield Faker().job()
+
+@pytest.fixture(autouse=True)
+def note_content():
+    yield Faker().text(50)
+
+@pytest.fixture(autouse=True)
+def open_zeppelin(note_name):
+    api = ZeppelinApi('http://localhost:8080')
     driver = Browser()
     driver.open('http://localhost:8080')
     yield driver
     driver.quit()
+    api.delete_note_by_name(note_name)
 
 
-def test_export(open_zeppelin):
-    note_name = Faker().job()
-    note_content = Faker().text(50)
+def test_export(open_zeppelin, note_name, note_content):
     main_page = MainPage(open_zeppelin)
     note_page = main_page.create_new_note(note_name)
     note_page.type_note(note_content)
