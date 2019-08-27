@@ -1,3 +1,4 @@
+import pytest
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -7,7 +8,6 @@ import time
 import tempfile
 import json
 import codecs
-
 
 
 class Browser:
@@ -24,7 +24,7 @@ class Browser:
         self.browser.get(url)
 
     def quit(self):
-        self.browser.quit
+        self.browser.quit()
 
 
 class MainPage:
@@ -67,19 +67,24 @@ class Notebook:
 
     def export_note(self):
         self.driver.browser.find_element_by_xpath('//button[contains(@ng-click, "exportNote")]').click()
-        file_path =self.driver.download_dir + "/" + self.name() + ".json"
+        file_path = self.driver.download_dir + "/" + self.name() + ".json"
         return json.load(codecs.open(file_path, 'r', 'utf-8-sig'))
 
 
-def test_export():
-    note_name = Faker().job()
-    note_content = Faker().text(50)
+@pytest.fixture(autouse=True)
+def open_zeppelin():
     driver = Browser()
     driver.open('http://localhost:8080')
-    main_page = MainPage(driver)
+    yield driver
+    driver.quit()
+
+
+def test_export(open_zeppelin):
+    note_name = Faker().job()
+    note_content = Faker().text(50)
+    main_page = MainPage(open_zeppelin)
     note_page = main_page.create_new_note(note_name)
     note_page.type_note(note_content)
     note_data = note_page.export_note()
     assert note_data['name'] == note_name
     assert note_data['paragraphs'][0]['text'] == note_content
-    driver.quit()
