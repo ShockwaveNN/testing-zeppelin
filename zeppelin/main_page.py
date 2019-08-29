@@ -1,0 +1,43 @@
+import logging
+import time
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from .notebook import Notebook
+
+
+class MainPage:
+    def __init__(self, driver):
+        self.driver = driver
+        self.wait_to_load()
+
+    def wait_to_load(self):
+        logging.info('[Main Page] Waiting to load')
+        WebDriverWait(self.driver.browser, 3).until(
+            EC.presence_of_element_located((By.XPATH, '//div[@id="main"]//a[@data-target="#noteCreateModal"]')))
+        time.sleep(1)  # TODO: Remove timeout
+
+    def open_new_note_window(self):
+        logging.info('[Main Page]Open new note window')
+        self.driver.browser.find_element_by_xpath('//div[@id="main"]//a[@data-target="#noteCreateModal"]').click()
+        WebDriverWait(self.driver.browser, 3).until(
+            EC.presence_of_element_located((By.XPATH, '//div[@id="noteCreateModal"]//input[@id="noteName"]')))
+        time.sleep(1)  # TODO: Remove timeout
+
+    def create_new_note(self, name, interpreter='spark'):
+        logging.info('[Main Page] Create new note with name: ' + name)
+        self.open_new_note_window()
+        self.driver.browser.find_element_by_xpath('//div[@id="noteCreateModal"]//input[@id="noteName"]').send_keys(name)
+        # TODO: ability to set interpreter
+        self.driver.browser.find_element_by_xpath('//*[@id="createNoteButton"]').click()
+        return Notebook(self.driver)
+
+    def import_note(self):
+        logging.info('[Main Page] Click on import note')
+        self.driver.browser.find_element_by_xpath('//div[@id="main"]//a[@data-target="#noteImportModal"]').click()
+        return ImportNoteWindow(self.driver)
+
+    def open_note_by_name(self, name):
+        logging.info('[Main Page] Opening note with name: ' + name)
+        # TODO: handle opening note by name
+        return Notebook(self.driver)
