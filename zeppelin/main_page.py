@@ -37,8 +37,16 @@ class MainPage:
         self.driver.browser.find_element_by_xpath('//div[@id="main"]//a[@data-target="#noteImportModal"]').click()
         return ImportNoteWindow(self.driver)
 
+    def notes_names(self):
+        notes_objects = self.driver.browser.find_elements_by_xpath("//ul[@id='notebook-names']/div//li//a[1]")
+        names = [x.text for x in notes_objects]
+        logging.info(f'[Main Page] Get list of all notes#{names}')
+        return names
+
     def open_note_by_name(self, name):
         logging.info('[Main Page] Opening note with name: ' + name)
+        note_index = self.notes_names().index(name)
+        self.driver.browser.find_element_by_xpath(f"(//ul[@id='notebook-names']/div//li)[{note_index + 1}]//a[1]").click()
         # TODO: handle opening note by name
         return Notebook(self.driver)
 

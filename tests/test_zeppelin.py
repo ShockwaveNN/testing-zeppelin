@@ -18,7 +18,7 @@ def note_content():
 
 @pytest.fixture(autouse=True)
 def note_file():
-    yield os.getcwd() + '/PermanentTestNote.json'
+    yield os.getcwd() + '/tests/PermanentTestNote.json'
 
 @pytest.fixture(autouse=True)
 def open_zeppelin(note_name):
@@ -41,8 +41,10 @@ def test_export(open_zeppelin, note_name, note_content):
 
 def test_import(open_zeppelin, note_name, note_file):
     main_page = MainPage(open_zeppelin)
+    assert note_name not in main_page.notes_names()
     import_note_window = main_page.import_note()
     import_note_window.set_name(note_name)
     main_page = import_note_window.set_file(note_file)
+    assert note_name in main_page.notes_names()
     note_page = main_page.open_note_by_name(note_name)
-    assert note_page.name == note_name
+    assert note_page.name() == note_name
