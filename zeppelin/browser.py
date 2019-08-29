@@ -12,7 +12,7 @@ class Browser:
         prefs = {'download.default_directory': self.download_dir}
         chrome_options.add_experimental_option('prefs', prefs)
         logging.info('Starting browser')
-        self.browser = webdriver.Chrome(executable_path=self.chromedriver_path, chrome_options=chrome_options)
+        self.browser = webdriver.Chrome(executable_path=self.chromedriver_path, options=chrome_options)
 
     def open(self, url):
         logging.info('Opening url: ' + url)
