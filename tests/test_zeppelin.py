@@ -1,3 +1,4 @@
+import os
 import pytest
 from faker import Faker
 from zeppelin.browser import Browser
@@ -17,7 +18,7 @@ def note_content():
 
 @pytest.fixture(autouse=True)
 def note_file():
-    yield '/home/lobashov/sources/testing-zeppelin/zeppelin/PermanentTestNote.json' # TODO relative path
+    yield os.getcwd() + '/PermanentTestNote.json'
 
 @pytest.fixture(autouse=True)
 def open_zeppelin(note_name):
