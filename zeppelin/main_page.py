@@ -25,7 +25,7 @@ class MainPage:
         time.sleep(1)  # TODO: Remove timeout
 
     def create_new_note(self, name, interpreter='spark'):
-        logging.info('[Main Page] Create new note with name: ' + name)
+        logging.info(f"[Main Page] Create new note with name: {name}")
         self.open_new_note_window()
         self.driver.browser.find_element_by_xpath('//div[@id="noteCreateModal"]//input[@id="noteName"]').send_keys(name)
         # TODO: ability to set interpreter
@@ -40,11 +40,11 @@ class MainPage:
     def notes_names(self):
         notes_objects = self.driver.browser.find_elements_by_xpath("//ul[@id='notebook-names']/div//li//a[1]")
         names = [x.text for x in notes_objects]
-        logging.info(f'[Main Page] Get list of all notes#{names}')
+        logging.info(f'[Main Page] Get list of all notes {names}')
         return names
 
     def open_note_by_name(self, name):
-        logging.info('[Main Page] Opening note with name: ' + name)
+        logging.info(f"[Main Page] Opening note with name: {name}")
         note_index = self.notes_names().index(name)
         self.driver.browser.find_element_by_xpath(f"(//ul[@id='notebook-names']/div//li)[{note_index + 1}]//a[1]").click()
         # TODO: handle opening note by name
@@ -63,10 +63,10 @@ class ImportNoteWindow:
         time.sleep(1)  # TODO: Remove timeout
 
     def set_name(self, name):
-        logging.info('[Import Note Window] set import name' + name)
+        logging.info(f"[Import Note Window] set import name {name}")
         self.driver.browser.find_element_by_xpath('//input[@id="noteImportName"]').send_keys(name)
 
     def set_file(self, file):
-        logging.info('[Import Note Window] set import file' + file)
+        logging.info(f"[Import Note Window] set import file {file}")
         self.driver.browser.find_element_by_xpath('//*[@id="noteImportFile"]').send_keys(file)
         return MainPage(self.driver)

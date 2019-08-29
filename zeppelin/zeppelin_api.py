@@ -14,11 +14,11 @@ class ZeppelinApi:
         return json.loads(data)['body']
 
     def delete_note_by_id(self, note_id):
-        logging.info('[ZeppelinApi] delete_note_by_id: ' + note_id)
-        requests.delete(self.url + "/api/notebook/" + note_id)
+        logging.info(f"[ZeppelinApi] delete_note_by_id: {note_id}")
+        requests.delete(f"{self.url}/api/notebook/{note_id}")
 
     def delete_note_by_name(self, name):
-        logging.info('[ZeppelinApi] Delete note by name: ' + name)
+        logging.info(f"[ZeppelinApi] Delete note by name: {name}")
         notes = self.notes()
         note = next(item for item in notes if item["name"] == name)
         self.delete_note_by_id(note['id'])

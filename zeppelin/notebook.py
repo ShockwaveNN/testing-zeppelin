@@ -17,7 +17,7 @@ class Notebook:
             EC.presence_of_element_located((By.XPATH, '//textarea[contains(@class, "ace_text-input")]')))
 
     def type_note(self, note):
-        logging.info('[Notebook page] Typing note: '+ note)
+        logging.info(f'[Notebook page] Typing note: {note}')
         self.driver.browser.find_element_by_xpath('//textarea[contains(@class, "ace_text-input")]').send_keys(note)
 
     def name(self):
@@ -27,5 +27,5 @@ class Notebook:
     def export_note(self):
         logging.info('[Notebook page] Exporting note')
         self.driver.browser.find_element_by_xpath('//button[contains(@ng-click, "exportNote")]').click()
-        file_path = self.driver.download_dir + "/" + self.name() + ".json"
+        file_path = f"{self.driver.download_dir}/{self.name()}.json"
         return json.load(codecs.open(file_path, 'r', 'utf-8-sig'))

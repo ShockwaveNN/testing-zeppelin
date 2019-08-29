@@ -15,7 +15,7 @@ class Browser:
         self.browser = webdriver.Chrome(executable_path=self.chromedriver_path, options=chrome_options)
 
     def open(self, url):
-        logging.info('Opening url: ' + url)
+        logging.info(f"Opening url: {url}")
         self.browser.get(url)
 
     def quit(self):
