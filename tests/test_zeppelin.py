@@ -9,7 +9,7 @@ from zeppelin.zeppelin_api import ZeppelinApi
 
 @pytest.fixture(autouse=True)
 def note_name():
-    yield Faker().job()
+    yield Faker().company()
 
 
 @pytest.fixture(autouse=True)
