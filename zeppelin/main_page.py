@@ -47,7 +47,6 @@ class MainPage:
         logging.info(f"[Main Page] Opening note with name: {name}")
         note_index = self.notes_names().index(name)
         self.driver.browser.find_element_by_xpath(f"(//ul[@id='notebook-names']/div//li)[{note_index + 1}]//a[1]").click()
-        # TODO: handle opening note by name
         return Notebook(self.driver)
 
 
