@@ -1,7 +1,7 @@
 import os
 import pytest
 import logging
-logging.basicConfig(filename='tests.log',level=logging.DEBUG)
+logging.basicConfig(filename='tests.log', filemode='w', level=logging.INFO)
 from faker import Faker
 from zeppelin.browser import Browser
 from zeppelin.main_page import MainPage
